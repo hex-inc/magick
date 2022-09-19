@@ -27,6 +27,19 @@ app.message(/^.*:hex:.*$/, async ({ message, context, say }) => {
     const caster = await findOrOnboardUser(message.user)
     const receiverRegex = new RegExp('<(.*?)>', 'g')
     const receivers = message.text?.match(receiverRegex)
+    if (!receivers) {
+      //If no recievers were tagged
+      setTimeout(async () => {
+        await app.client.chat.postEphemeral({
+          "user": message.user,
+          "channel": message.channel,
+          "text": "You forgot to tag a user to cast your spell on!",
+          "reply_broadcast": false
+        })
+      }, 100);
+      console.log('sent no receiver warning')
+      return
+    }
     if (caster && receivers && receivers.length >= 1) {
       //Iterate over receivers and cast spells on them!
       receivers.forEach(async (receiver) => {
@@ -59,20 +72,9 @@ app.message(/^.*:hex:.*$/, async ({ message, context, say }) => {
             await say(`Congratulations ${receiver}, you've been blessed by ${spellcast.spell.name}, ${spellcast.spell.description}! ${spellcast.spell.effects}. Enjoy!`)
           }
         } else {
-          throw new Error("No receiver user found")
+          throw new Error("No receiver user found in DB")
         }
       })
-    } else {
-      //If no recievers were tagged
-      setTimeout(async () => {
-        await app.client.chat.postEphemeral({
-          "user": message.user,
-          "channel": message.channel,
-          "text": "You forgot to tag a user to cast your spell on!",
-          "reply_broadcast": false
-        })
-      }, 250);
-      return
     }
   }
 });
