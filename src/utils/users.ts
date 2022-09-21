@@ -5,7 +5,7 @@ import { app } from '../app'
 
 
 export async function findOrOnboardUser(userSlackId: string): Promise<User> {
-    const userRegex = new RegExp('<@(.*?)>', 'g')
+    const userRegex = new RegExp('<@(.*?)>')
     const matches = userSlackId.match(userRegex)
     const userid = matches ? matches[1] : userSlackId //match 0 is the entire string
     const userRepository = AppDataSource.getRepository(User)
